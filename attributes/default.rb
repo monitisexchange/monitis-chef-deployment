@@ -21,7 +21,7 @@ default['MONITIS']['TARBALL_URL_64'] = "http://www.monitissupport.com/agents/Mon
 case platform
 when "debian","ubuntu"
 
-default['MONITIS']['LIBSSL'] = "libssl1.0.0"
+default['MONITIS']['LIBSSL'] = "openssl"
 
 when "redhat","centos","fedora"
 default['MONITIS']['LIBSSL'] = "openssl-devel"
