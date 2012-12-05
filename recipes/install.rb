@@ -34,7 +34,7 @@ tarball = "#{node[:MONITIS][:TARBALL_64]}"
 execute "wget" do
   tarball_url = "#{node[:MONITIS][:TARBALL_URL_64]}"
   cwd "/tmp"
-  command "wget #{tarball_url}"
+  command "wget '#{tarball_url}'"
   creates "/tmp/#{tarball}"
   action :run
 end
@@ -46,7 +46,7 @@ tarball = "#{node[:MONITIS][:TARBALL_32]}"
 execute "wget" do
   tarball_url = "#{node[:MONITIS][:TARBALL_URL_32]}"
   cwd "/tmp"
-  command "wget #{tarball_url}"
+  command "wget '#{tarball_url}'"
   creates "/tmp/#{tarball}"
   action :run
 end
