@@ -34,7 +34,7 @@ tarball = "#{node[:MONITIS][:TARBALL_64]}"
 execute "wget" do
   tarball_url = "#{node[:MONITIS][:TARBALL_URL_64]}"
   cwd "/tmp"
-  command "wget '#{tarball_url}'"
+  command "wget '#{tarball_url}' -O /tmp/#{tarball}"
   creates "/tmp/#{tarball}"
   action :run
 end
@@ -46,7 +46,7 @@ tarball = "#{node[:MONITIS][:TARBALL_32]}"
 execute "wget" do
   tarball_url = "#{node[:MONITIS][:TARBALL_URL_32]}"
   cwd "/tmp"
-  command "wget '#{tarball_url}'"
+  command "wget '#{tarball_url}' -O /tmp/#{tarball}"
   creates "/tmp/#{tarball}"
   action :run
 end
@@ -88,7 +88,7 @@ arch = node[:kernel][:machine]
 tarball = "#{node[:MONITIS][:TARBALL]}"
 tarball_url = "#{node[:MONITIS][:TARBALL_URL]}"
 dst = "c:/Windows/Temp/#{tarball}"
-exe = "c:/Windows/Temp/Setup.exe"
+exe = "c:/Windows/Temp/MonitisAgentSetup.exe"
 
 remote_file "#{dst}" do
   source "#{tarball_url}"
@@ -109,12 +109,14 @@ if "#{arch}" == "x86_64"
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+  values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
 else
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+  values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
 end

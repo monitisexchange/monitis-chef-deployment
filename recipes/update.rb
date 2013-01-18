@@ -41,7 +41,7 @@ tarball = "#{node[:MONITIS][:TARBALL_64]}"
 execute "wget" do
   tarball_url = "#{node[:MONITIS][:TARBALL_URL_64]}"
   cwd "/tmp"
-  command "wget '#{tarball_url}'"
+  command "wget '#{tarball_url}' -O /tmp/#{tarball}"
   creates "/tmp/#{tarball}"
   action :run
 end
@@ -53,7 +53,7 @@ tarball = "#{node[:MONITIS][:TARBALL_32]}"
 execute "wget" do
   tarball_url = "#{node[:MONITIS][:TARBALL_URL_32]}"
   cwd "/tmp"
-  command "wget '#{tarball_url}'"
+  command "wget '#{tarball_url}' -O /tmp/#{tarball}"
   creates "/tmp/#{tarball}"
   action :run
 end
@@ -76,6 +76,8 @@ execute "remove_tarball" do
    action :run
 end
 
+
+
 template "#{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf" do
   source "monitis.conf.erb"
   mode "0644"
@@ -91,26 +93,41 @@ end
 
 if platform?("windows")
 
-
-if "#{arch}" == "x86_64"
-
-exe = "c:/Program Files (x86)/Monitis.com/Monitis/Uninstall.exe"
-
-else
-
-exe = "c:/Program Files/Monitis.com/Monitis/Uninstall.exe"
-
-end
-
-execute "install #{exe}" do
-  command "#{exe} /S"
-end
-
 arch = node[:kernel][:machine]
 tarball = "#{node[:MONITIS][:TARBALL]}"
 tarball_url = "#{node[:MONITIS][:TARBALL_URL]}"
 dst = "c:/Windows/Temp/#{tarball}"
-exe = "c:/Windows/Temp/Setup.exe"
+exe = "c:/Windows/Temp/MonitisAgentSetup.exe"
+
+if "#{arch}" == "x86_64"
+
+template "C:/Windows/Temp/uninstall_x64.bat" do
+  source "uninstall_x64.bat.erb"
+#  mode "0644"
+end
+
+bat = "C:/Windows/Temp/uninstall_x64.bat"
+
+else
+
+template "C:/Windows/Temp/uninstall_x32.bat" do
+  source "uninstall_x32.bat.erb"
+#  mode "0644"
+end
+
+bat = "C:/Windows/Temp/uninstall_x32.bat"
+
+end
+
+execute "uninstall" do
+#  only_if {File.exists?('')}
+#  cwd "#{path}"
+  command "#{bat}"
+end
+
+execute "remove_bat" do
+  command "rm -r #{bat}"
+end
 
 remote_file "#{dst}" do
   source "#{tarball_url}"
@@ -131,12 +148,14 @@ if "#{arch}" == "x86_64"
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+  values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
 else
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+  values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
 end
@@ -152,5 +171,5 @@ execute "remove_exe" do
    command "rm -f #{exe}"
    action :run
 end
-
 end
+
