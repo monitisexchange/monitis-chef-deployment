@@ -34,6 +34,6 @@ default['MONITIS']['LIBSSL'] = "libopenssl1_0_0"
 when "windows"
 
 default['MONITIS']['TARBALL'] = "MonitisWindowsAgent-32-64bit.zip"
-default['MONITIS']['TARBALL_URL'] = "http://dashboard1.monitis.com/downloader?type=internalAgent&platform=win32&version=v4_01_12"
+default['MONITIS']['TARBALL_URL'] = "http://dashboard1.monitis.com/downloader?type=internalAgent&platform=win32&version=v4_01_19"
 
 end

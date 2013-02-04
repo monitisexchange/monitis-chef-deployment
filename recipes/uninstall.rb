@@ -28,21 +28,23 @@ arch = node[:kernel][:machine]
 
 if "#{arch}" == "x86_64"
 
-template "C:/Windows/Temp/uninstall.bat" do
-  source "uninstall.bat.erb"
+template "C:/Windows/Temp/uninstall_x64.bat" do
+  source "uninstall_x64.bat.erb"
 #  mode "0644"
 end
 
-path = "%ProgramFiles(x86)%"
-
+bat = "C:/Windows/Temp/uninstall_x64.bat"
 
 else
 
-path = "%ProgramFiles%"
-
+template "C:/Windows/Temp/uninstall_x32.bat" do
+  source "uninstall_x32.bat.erb"
+#  mode "0644"
 end
 
-bat = "C:/Windows/Temp/uninstall.bat"
+bat = "C:/Windows/Temp/uninstall_x32.bat"
+
+end
 
 execute "uninstall" do
 #  cwd "#{path}"

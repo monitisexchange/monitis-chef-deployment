@@ -133,4 +133,17 @@ execute "remove_exe" do
    action :run
 end
 
+execute "sleep_5" do
+  command "ping -n 10 localhost> nul"
+end
+
+execute "stop_service" do
+  command 'net stop "Monitis Smart Agent" /y'
+end
+
+execute "start_service" do
+  command 'net start "Monitis Smart Agent" /y'
+end
+
+
 end

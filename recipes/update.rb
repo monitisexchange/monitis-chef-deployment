@@ -26,6 +26,21 @@ execute "stop_monitis" do
    action :run
 end
 
+#bash "get_agentname" do
+#  code <<-EOF
+#    AGENTNAMEOLD=`cat #{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf| grep AGENTNAME|awk '{print $2}'`
+#  EOF
+#  environment { 'AGENTNAMEOLD' => "AGENTNAME" }
+#  node.set["MONITIS"]["AGENTNAMEOLD"] = AGENTNAMEOLD
+#end
+
+bash "backup_config" do
+  code <<-EOF
+        cp #{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf /tmp/
+  EOF
+end
+
+
 execute "remove_monitis" do
    cwd "/tmp/"
    command "rm -rf #{node[:MONITIS][:INSTALLDIR]}/monitis"
@@ -76,11 +91,16 @@ execute "remove_tarball" do
    action :run
 end
 
-
-
 template "#{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf" do
-  source "monitis.conf.erb"
+  source "monitis.conf_upd.erb"
   mode "0644"
+end
+
+bash "update_agentname" do
+  code <<-EOF
+	AGENTNAMEOLD=`cat /tmp/monitis.conf| grep AGENTNAME|awk '{print $2}'`
+        echo "AGENTNAME	$AGENTNAMEOLD" >> #{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf
+  EOF
 end
 
 execute "start_monitis" do
@@ -144,6 +164,10 @@ execute "install #{exe}" do
   command "#{exe} /S"
 end
 
+execute "registry" do
+  command "regedit /s c:/Windows/Temp/agent.reg"
+end
+
 if "#{arch}" == "x86_64"
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
@@ -171,5 +195,24 @@ execute "remove_exe" do
    command "rm -f #{exe}"
    action :run
 end
+
+execute "remove_registry" do
+   cwd "c:/Windows/Temp/"
+   command "rm -f agent.reg"
+   action :run
+end
+
+execute "sleep_5" do
+  command "ping -n 10 localhost> nul"
+end
+
+execute "stop_service" do
+  command 'net stop "Monitis Smart Agent" /y'
+end
+
+execute "start_service" do
+  command 'net start "Monitis Smart Agent" /y'
+end
+
 end
 
