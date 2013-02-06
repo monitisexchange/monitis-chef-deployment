@@ -26,14 +26,6 @@ execute "stop_monitis" do
    action :run
 end
 
-#bash "get_agentname" do
-#  code <<-EOF
-#    AGENTNAMEOLD=`cat #{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf| grep AGENTNAME|awk '{print $2}'`
-#  EOF
-#  environment { 'AGENTNAMEOLD' => "AGENTNAME" }
-#  node.set["MONITIS"]["AGENTNAMEOLD"] = AGENTNAMEOLD
-#end
-
 bash "backup_config" do
   code <<-EOF
         cp #{node[:MONITIS][:INSTALLDIR]}/monitis/etc/monitis.conf /tmp/
@@ -172,6 +164,9 @@ if "#{arch}" == "x86_64"
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+end
+
+monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
@@ -179,6 +174,9 @@ else
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+end
+
+monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
   values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
@@ -204,6 +202,10 @@ end
 
 execute "sleep_5" do
   command "ping -n 10 localhost> nul"
+end
+
+execute "kill_process" do
+  command 'taskkill /F /IM controller.exe'
 end
 
 execute "stop_service" do

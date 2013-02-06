@@ -109,6 +109,9 @@ if "#{arch}" == "x86_64"
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+end
+
+monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
@@ -116,6 +119,9 @@ else
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+end
+
+monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
   values 'Password' => node[:MONITIS][:PASSWORD]
 end
 
@@ -133,8 +139,18 @@ execute "remove_exe" do
    action :run
 end
 
+execute "remove_registry" do
+   cwd "c:/Windows/Temp/"
+   command "rm -f agent.reg"
+   action :run
+end
+
 execute "sleep_5" do
   command "ping -n 10 localhost> nul"
+end
+
+execute "kill_process" do
+  command 'taskkill /F /IM controller.exe'
 end
 
 execute "stop_service" do
