@@ -82,13 +82,24 @@ end
 
 end
 end
+
 if platform?("windows")
+
 
 arch = node[:kernel][:machine]
 tarball = "#{node[:MONITIS][:TARBALL]}"
 tarball_url = "#{node[:MONITIS][:TARBALL_URL]}"
-dst = "c:/Windows/Temp/#{tarball}"
-exe = "c:/Windows/Temp/MonitisAgentSetup.exe"
+dst = "#{node[:MONITIS][:TEMP]}/#{tarball}"
+exe = "#{node[:MONITIS][:TEMP]}/MonitisAgentSetup.exe"
+
+if "#{arch}" == "x86_64"
+
+INSTALLDIR = ENV['ProgramFiles(x86)']
+
+if File.exists?("#{INSTALLDIR}\\Monitis.com\\Monitis\\Controller.exe")
+#self.msg("Monitis Agnet already installed")
+else
+
 
 remote_file "#{dst}" do
   source "#{tarball_url}"
@@ -96,7 +107,7 @@ end
  
 monitis_zipfile dst do
 #  force true
-  path "c:/Windows/Temp/"
+  path "#{node[:MONITIS][:TEMP]}"
   source "#{dst}"
   action :unzip
 end
@@ -105,42 +116,28 @@ execute "install #{exe}" do
   command "#{exe} /S"
 end
 
-if "#{arch}" == "x86_64"
-
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'E-Mail' => node[:MONITIS][:USEREMAIL]
 end
 
 monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Monitis.com\Monitis\Agent' do
   values 'Password' => node[:MONITIS][:PASSWORD]
-end
-
-else
-
-monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
-  values 'E-Mail' => node[:MONITIS][:USEREMAIL]
-end
-
-monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
-  values 'Password' => node[:MONITIS][:PASSWORD]
-end
-
 end
 
 execute "remove_tarball" do
-   cwd "c:/Windows/Temp/"
+   cwd "#{node[:MONITIS][:TEMP]}"
    command "rm -f #{dst}"
    action :run
 end
 
 execute "remove_exe" do
-   cwd "c:/Windows/Temp/"
+   cwd "#{node[:MONITIS][:TEMP]}"
    command "rm -f #{exe}"
    action :run
 end
 
 execute "remove_registry" do
-   cwd "c:/Windows/Temp/"
+   cwd "#{node[:MONITIS][:TEMP]}"
    command "rm -f agent.reg"
    action :run
 end
@@ -161,5 +158,75 @@ execute "start_service" do
   command 'net start "Monitis Smart Agent" /y'
 end
 
+
+end
+
+else
+INSTALLDIR = ENV['ProgramFiles']
+
+if File.exists?("#{INSTALLDIR}\\Monitis.com\\Monitis\\Controller.exe")
+#self.msg("Monitis Agnet already installed")
+else
+
+remote_file "#{dst}" do
+  source "#{tarball_url}"
+end
+
+monitis_zipfile dst do
+#  force true
+  path "#{node[:MONITIS][:TEMP]}"
+  source "#{dst}"
+  action :unzip
+end
+
+execute "install #{exe}" do
+  command "#{exe} /S"
+end
+
+monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
+  values 'E-Mail' => node[:MONITIS][:USEREMAIL]
+end
+
+monitis_registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Monitis.com\Monitis\Agent' do
+  values 'Password' => node[:MONITIS][:PASSWORD]
+end
+
+execute "remove_tarball" do
+   cwd "#{node[:MONITIS][:TEMP]}"
+   command "rm -f #{dst}"
+   action :run
+end
+
+execute "remove_exe" do
+   cwd "#{node[:MONITIS][:TEMP]}"
+   command "rm -f #{exe}"
+   action :run
+end
+
+execute "remove_registry" do
+   cwd "#{node[:MONITIS][:TEMP]}"
+   command "rm -f agent.reg"
+   action :run
+end
+
+execute "sleep_5" do
+  command "ping -n 10 localhost> nul"
+end
+
+execute "kill_process" do
+  command 'taskkill /F /IM controller.exe'
+end
+
+execute "stop_service" do
+  command 'net stop "Monitis Smart Agent" /y'
+end
+
+execute "start_service" do
+  command 'net start "Monitis Smart Agent" /y'
+end
+
+
+end
+end
 
 end

@@ -28,21 +28,21 @@ arch = node[:kernel][:machine]
 
 if "#{arch}" == "x86_64"
 
-template "C:/Windows/Temp/uninstall_x64.bat" do
+template "#{node[:MONITIS][:TEMP]}/uninstall_x64.bat" do
   source "uninstall_x64.bat.erb"
 #  mode "0644"
 end
 
-bat = "C:/Windows/Temp/uninstall_x64.bat"
+bat = "#{node[:MONITIS][:TEMP]}/uninstall_x64.bat"
 
 else
 
-template "C:/Windows/Temp/uninstall_x32.bat" do
+template "#{node[:MONITIS][:TEMP]}/uninstall_x32.bat" do
   source "uninstall_x32.bat.erb"
 #  mode "0644"
 end
 
-bat = "C:/Windows/Temp/uninstall_x32.bat"
+bat = "#{node[:MONITIS][:TEMP]}/uninstall_x32.bat"
 
 end
 
