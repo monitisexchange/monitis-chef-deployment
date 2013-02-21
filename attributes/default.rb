@@ -15,8 +15,8 @@ default['MONITIS']['AGENTNAME'] = node[:hostname]
 
 default['MONITIS']['TARBALL_32'] = "MonitisLinuxAgent-32bit.tar.gz"
 default['MONITIS']['TARBALL_64'] = "MonitisLinuxAgent-64bit.tar.gz"
-default['MONITIS']['TARBALL_URL_32'] = "http://dashboard1.monitis.com/downloader?type=internalAgent&platform=linux32&version=v4_01_17"
-default['MONITIS']['TARBALL_URL_64'] = "http://dashboard1.monitis.com/downloader?type=internalAgent&platform=linux64&version=v4_01_17"
+default['MONITIS']['TARBALL_URL_32'] = "http://dashboard1.monitis.com/downloader?type=internalAgent&platform=linux32&version=v4_01_20"
+default['MONITIS']['TARBALL_URL_64'] = "http://dashboard1.monitis.com/downloader?type=internalAgent&platform=linux64&version=v4_01_20"
 
 # overrides on a platform-by-platform basis
 case platform
